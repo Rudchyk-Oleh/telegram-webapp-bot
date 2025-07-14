@@ -1,29 +1,60 @@
-const TelegramBot = require('node-telegram-bot-api');
+import TelegramBot from 'node-telegram-bot-api';
+import http from 'http';
 
-const TOKEN = '7895773734:AAHKWROWiJ3eW6JmR4tp8caMDOb9K1ObzOU';
-const GROUP_ID = -1002689346007;
-const WEBAPP_URL = 'https://yourdomain.com/chatingtg/index.html'; // 🔁 Встав сюди свій домен
+// Токен збережений у середовищі (Render > Environment → BOT_TOKEN)
+const token = process.env.BOT_TOKEN || '6497793706:AAF...'; // ← fallback для локального запуску
 
-const bot = new TelegramBot(TOKEN, { polling: true });
+// Ініціалізація бота
+const bot = new TelegramBot(token, { polling: true });
 
+// ID групи, куди надсилати звернення
+const groupId = process.env.GROUP_ID || '-1002215572345'; // ← заміни на свій ID, якщо буде інший
+
+// Посилання на Telegram WebApp
+const webAppUrl = 'https://zuno-feedback.web.app'; // ← твій актуальний WebApp
+
+// Обробка команди /start
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
 
-  bot.sendMessage(chatId, "Оберіть дію:", {
+  bot.sendMessage(chatId, 'Обери дію нижче:', {
     reply_markup: {
-      keyboard: [[{
-        text: "🧾 Відкрити меню",
-        web_app: { url: WEBAPP_URL }
-      }]],
-      resize_keyboard: true,
-      one_time_keyboard: true
+      inline_keyboard: [
+        [
+          {
+            text: '📩 Залишити звернення',
+            web_app: { url: webAppUrl }
+          }
+        ]
+      ]
     }
   });
 });
 
+// Обробка даних, отриманих з WebApp
 bot.on('web_app_data', (msg) => {
-  const username = msg.from.username || msg.from.first_name;
-  const reason = msg.web_app_data.data;
-  const text = `🔔 Нове звернення:\n👤 @${username}\n📌 Причина: ${reason}`;
-  bot.sendMessage(GROUP_ID, text);
+  const data = msg.web_app_data.data;
+  const chatId = msg.chat.id;
+
+  try {
+    const parsed = JSON.parse(data);
+    const message = `📨 Нова заявка від користувача ${msg.from.first_name}:\nПричина звернення: ${parsed.reason}`;
+
+    // Відправка в групу
+    bot.sendMessage(groupId, message);
+
+    // Відповідь користувачу
+    bot.sendMessage(chatId, '✅ Дякуємо! Ваше звернення надіслано.');
+  } catch (error) {
+    console.error('JSON parse error:', error);
+    bot.sendMessage(chatId, '❌ Сталася помилка при обробці звернення.');
+  }
+});
+
+// Фейковий сервер для Render
+http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('Bot is running');
+}).listen(process.env.PORT || 3000, () => {
+  console.log(`Server is running on port ${process.env.PORT || 3000}`);
 });
