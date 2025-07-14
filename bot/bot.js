@@ -2,7 +2,9 @@ import TelegramBot from 'node-telegram-bot-api';
 import http from 'http';
 
 // Токен збережений у середовищі (Render > Environment → BOT_TOKEN)
-const token = process.env.BOT_TOKEN || '6497793706:AAF...'; // ← fallback для локального запуску
+const token = process.env.BOT_TOKEN || '6497793706:AAFxA2Gf0EXAMpFubx1DNNxRZBZrtyEe8Ro
+
+'; // ← fallback для локального запуску
 
 // Ініціалізація бота
 const bot = new TelegramBot(token, { polling: true });
