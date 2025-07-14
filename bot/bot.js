@@ -3,7 +3,7 @@ import http from 'http';
 
 // Токен збережений у середовищі (Render > Environment → BOT_TOKEN)
 // Перед правкою:
-const token = process.env.BOT_TOKEN || '6497793706:AAFxA2Gf0EXAMpFubx1DNNxRZBZrtyEe8Ro';
+const token = process.env.BOT_TOKEN || '7895773734:AAHKWROWiJ3eW6JmR4tp8caMDOb9K1ObzOU';
  // fallback для локального запуску
  // ← fallback для локального запуску
 
