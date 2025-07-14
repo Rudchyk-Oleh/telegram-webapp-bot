@@ -3,18 +3,21 @@ import http from 'http';
 
 // Токен збережений у середовищі (Render > Environment → BOT_TOKEN)
 // Перед правкою:
-const token = process.env.BOT_TOKEN || '7895773734:AAHKWROWiJ3eW6JmR4tp8caMDOb9K1ObzOU';
+const token = process.env.BOT_TOKEN;
  // fallback для локального запуску
  // ← fallback для локального запуску
+
+
+
 
 // Ініціалізація бота
 const bot = new TelegramBot(token, { polling: true });
 
 // ID групи, куди надсилати звернення
-const groupId = process.env.GROUP_ID || '-1002215572345'; // ← заміни на свій ID, якщо буде інший
+const groupId = process.env.GROUP_ID; // ← заміни на свій ID, якщо буде інший
 
 // Посилання на Telegram WebApp
-const webAppUrl = process.env.WEBAPP_URL || 'https://simple.store/support/chatingtg/index.html';
+const webAppUrl = process.env.WEBAPP_URL;
  // ← твій актуальний WebApp
 
 // Обробка команди /start
