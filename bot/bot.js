@@ -59,6 +59,9 @@ bot.on('web_app_data', (msg) => {
     bot.sendMessage(chatId, '❌ Сталася помилка при обробці звернення.');
   }
 });
+bot.on('message', (msg) => {
+  console.log('chatId:', msg.chat.id);
+});
 
 // 6. Запуск Express сервера
 app.listen(port, () => {
