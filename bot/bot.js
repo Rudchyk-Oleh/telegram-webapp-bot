@@ -1,26 +1,28 @@
 import TelegramBot from 'node-telegram-bot-api';
-import http from 'http';
+import express from 'express';
 
-// Токен збережений у середовищі (Render > Environment → BOT_TOKEN)
-// Перед правкою:
+// 1. Ініціалізація токена
 const token = process.env.BOT_TOKEN;
- // fallback для локального запуску
- // ← fallback для локального запуску
+const bot = new TelegramBot(token);
 
+// 2. Ініціалізація Express + Webhook
+const app = express();
+const port = process.env.PORT || 3000;
+const url = process.env.RENDER_EXTERNAL_URL; // Render сам додає це
 
+bot.setWebHook(`${url}/bot${token}`);
+app.use(express.json());
 
+app.post(`/bot${token}`, (req, res) => {
+  bot.processUpdate(req.body);
+  res.sendStatus(200);
+});
 
-// Ініціалізація бота
-const bot = new TelegramBot(token, { polling: true });
-
-// ID групи, куди надсилати звернення
-const groupId = process.env.GROUP_ID; // ← заміни на свій ID, якщо буде інший
-
-// Посилання на Telegram WebApp
+// 3. ID групи, WebApp URL
+const groupId = process.env.GROUP_ID;
 const webAppUrl = process.env.WEBAPP_URL;
- // ← твій актуальний WebApp
 
-// Обробка команди /start
+// 4. Обробка /start
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
 
@@ -38,7 +40,7 @@ bot.onText(/\/start/, (msg) => {
   });
 });
 
-// Обробка даних, отриманих з WebApp
+// 5. Обробка WebApp даних
 bot.on('web_app_data', (msg) => {
   const data = msg.web_app_data.data;
   const chatId = msg.chat.id;
@@ -47,10 +49,10 @@ bot.on('web_app_data', (msg) => {
     const parsed = JSON.parse(data);
     const message = `📨 Нова заявка від користувача ${msg.from.first_name}:\nПричина звернення: ${parsed.reason}`;
 
-    // Відправка в групу
+    // Надсилання в групу
     bot.sendMessage(groupId, message);
 
-    // Відповідь користувачу
+    // Підтвердження користувачу
     bot.sendMessage(chatId, '✅ Дякуємо! Ваше звернення надіслано.');
   } catch (error) {
     console.error('JSON parse error:', error);
@@ -58,10 +60,7 @@ bot.on('web_app_data', (msg) => {
   }
 });
 
-// Фейковий сервер для Render
-http.createServer((req, res) => {
-  res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.end('Bot is running');
-}).listen(process.env.PORT || 3000, () => {
-  console.log(`Server is running on port ${process.env.PORT || 3000}`);
+// 6. Запуск Express сервера
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 });
