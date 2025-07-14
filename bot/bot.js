@@ -14,7 +14,8 @@ const bot = new TelegramBot(token, { polling: true });
 const groupId = process.env.GROUP_ID || '-1002215572345'; // ← заміни на свій ID, якщо буде інший
 
 // Посилання на Telegram WebApp
-const webAppUrl = 'https://simple.store/support/chatingtg/index.html'; // ← твій актуальний WebApp
+const webAppUrl = process.env.WEBAPP_URL || 'https://simple.store/support/chatingtg/index.html';
+ // ← твій актуальний WebApp
 
 // Обробка команди /start
 bot.onText(/\/start/, (msg) => {
